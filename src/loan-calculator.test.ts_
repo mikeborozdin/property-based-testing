@@ -1,0 +1,49 @@
+test('maximum loan amount is higher on the higher income', () => {
+    const mortgage = 500;
+
+    const higherIncomeLoan = getMaximumLoanAmount(2000, mortgage);
+    const lowerIncomeLoan = getMaximumLoanAmount(1000, mortgage);
+
+    expect(higherIncomeLoan).toBeGreaterThan(lowerIncomeLoan);
+  });
+
+  test('maximum loan amount is higher on a lower rent/mortgage', () => {
+    const income = 1000;
+
+    const higherMortgageLoan = getMaximumLoanAmount(income, 500);
+    const lowerMortgageLoan = getMaximumLoanAmount(income, 300);
+
+    expect(higherMortgageLoan).toBeLessThan(lowerMortgageLoan);
+  });
+
+  test('with fast-check: maximum loan amount is higher on the higher income', () => {
+    fc.assert(
+      fc.property(fc.integer(0, 10000), fc.integer(0, 10000), (higherIncome, lowerIncome) => {
+        fc.pre(higherIncome >= lowerIncome);
+
+        const mortgage = 500;
+
+        expect(getMaximumLoanAmount(higherIncome, mortgage))
+          .toBeGreaterThanOrEqual(getMaximumLoanAmount(lowerIncome, mortgage));
+      }),
+      {
+        numRuns: 100000
+      }
+    );
+  });
+
+  test('with fast-check: maximum loan amount is higher on the lower mortgage', () => {
+    fc.assert(
+      fc.property(fc.integer(0, 1000), fc.integer(0, 1000), (higherMortgage, lowerMortgage) => {
+        fc.pre(higherMortgage >= lowerMortgage);
+
+        const income = 2000;
+
+        expect(getMaximumLoanAmount(income, lowerMortgage))
+          .toBeGreaterThanOrEqual(getMaximumLoanAmount(income, higherMortgage));
+      }),
+      {
+        numRuns: 10000
+      }
+    );
+  });
